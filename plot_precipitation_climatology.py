@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import iris.plot as iplt
 import iris.coord_categorisation
 import cmocean
+import provenance
 
 
 
@@ -70,6 +71,20 @@ def apply_mask(cube, sftlf_file, realm):
     cube.data.mask = mask
     
     return cube
+
+
+def write_metadata(outfile, previous_history):
+    """SAve the metadata for history"""
+    
+    new_history = provenance.get_history_record()
+    complete_history = '%s \n %s' %(new_history, previous_history)
+    
+    fname, extension = outfile.split('.')
+    metadata_file = open(fname+'.txt', 'w')
+    metadata_file.write(complete_history) 
+    metadata_file.close()
+    
+    
     
 def main(inargs):
     """Plot the precipitation climatology."""   
@@ -84,6 +99,9 @@ def main(inargs):
     plot_data(clim, inargs.month, gridlines=inargs.gridlines,
               levels=inargs.cbar_levels)
     plt.savefig(inargs.outfile)
+    write_metadata(inargs.outfile, cube.attributes['history'])
+    
+    
 
 
 if __name__ == '__main__':
