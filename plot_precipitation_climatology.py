@@ -56,12 +56,30 @@ def plot_data(cube, month, gridlines=False, levels=None):
     title = '%s precipitation climatology (%s)' %(cube.attributes['model_id'], month)
     plt.title(title)
 
+def apply_mask(cube, sftlf_file, realm):
+    
+    assert realm in ['land', 'ocean'], "realm must be 'land' or 'ocean"
 
+    sftlf_cube = iris.load_cube(sftlf_file, 'land_area_fraction')
+    if realm == 'ocean':
+        mask = numpy.where(sftlf_cube.data < 50, True, False)
+    if realm == 'land':
+        mask = numpy.where(sftlf_cube.data > 50, True, False)
+    
+    cube.data = numpy.ma.asarray(cube.data)
+    cube.data.mask = mask
+    
+    return cube
+    
 def main(inargs):
-    """Plot the precipitation climatology."""
+    """Plot the precipitation climatology."""   
+
 
     cube = read_data(inargs.infile, inargs.month)    
     cube = convert_pr_units(cube)
+    if inargs.mask:
+        sftlf_file, realm = inargs.mask
+        cube = apply_mask(cube, sftlf_file, realm)
     clim = cube.collapsed('time', iris.analysis.MEAN)
     plot_data(clim, inargs.month, gridlines=inargs.gridlines,
               levels=inargs.cbar_levels)
@@ -80,11 +98,12 @@ if __name__ == '__main__':
                                  'Sep', 'Oct', 'Nov', 'Dec'], 
                         help="Month to plot")
     parser.add_argument("outfile", type=str, help="Output file name")
-
     parser.add_argument("--gridlines", action="store_true", default=False,
                         help="Include gridlines on the plot")
     parser.add_argument("--cbar_levels", type=float, nargs='*', default=None,
                         help='list of levels / tick marks to appear on the colourbar') 
-
+    parser.add_argument("--mask", type=str, nargs=2, metavar=('SFTLF_FILE', 'REALM'), default=None, 
+                        help='Apply a land or ocean mask (specify the realm to mask)')
+       
     args = parser.parse_args()            
     main(args)
