@@ -5,7 +5,6 @@ Created on Sun Feb  4 13:44:03 2018
 @author: elisa
 """
 
-
 import argparse
 import iris
 iris.FUTURE.netcdf_promote = True
@@ -70,7 +69,7 @@ def main(inargs):
 
 if __name__ == '__main__':
 
-    description='Plot the precipitation climatology.'
+    description='Plot the precipitation climatology for a given month.'
     parser = argparse.ArgumentParser(description=description)
     
     parser.add_argument("infile", type=str, help="Input file name")
