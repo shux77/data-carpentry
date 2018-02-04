@@ -6,13 +6,14 @@ Created on Sun Feb  4 13:44:03 2018
 """
 
 import argparse
+import numpy
 import iris
 iris.FUTURE.netcdf_promote = True
 import matplotlib.pyplot as plt
 import iris.plot as iplt
 import iris.coord_categorisation
 import cmocean
-import numpy
+
 
 
 def read_data(fname, month):
